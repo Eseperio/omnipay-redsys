@@ -1,6 +1,12 @@
 Omnipay: Redsys (+bizum) driver
 ===============
 
+| Version | depends on guzzlehttp/psr7|
+|---------|----------------|
+| 1.x     | 1.x            |
+| 2.x     | 2.x / php >7.4.5           |
+
+
 **RedSys driver for the Omnipay PHP payment processing library**
 
 [Omnipay](https://github.com/thephpleague/omnipay) is a framework agnostic, multi-gateway payment
