@@ -232,6 +232,6 @@ class Gateway extends AbstractGateway
      */
     public function decodeCallbackResponse(Request $request)
     {
-        return json_decode(base64_decode(strtr($request->get('Ds_MerchantParameters'), '-_', '+/')), true);
+        return json_decode(base64_decode(strtr($request->request->get('Ds_MerchantParameters') ?? $request->query->get('Ds_MerchantParameters') ?? '', '-_', '+/')), true);
     }
 }

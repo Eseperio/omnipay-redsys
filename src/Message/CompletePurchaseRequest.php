@@ -20,14 +20,18 @@ class CompletePurchaseRequest extends PurchaseRequest
     {
         $request = Request::createFromGlobals();
 
-        $rawParameters = $request->get('Ds_MerchantParameters');
+        $rawParameters = $request->request->get('Ds_MerchantParameters') ?? $request->query->get('Ds_MerchantParameters');
+
+        if ($rawParameters === null) {
+            throw new BadSignatureException();
+        }
 
         $decodedParameters = json_decode(base64_decode(strtr($rawParameters, '-_', '+/')), true);
 
         if (!$this->checkSignature(
             $rawParameters,
             $decodedParameters['Ds_Order'],
-            $request->get('Ds_Signature')
+            $request->request->get('Ds_Signature') ?? $request->query->get('Ds_Signature')
         )
         ) {
             throw new BadSignatureException();
