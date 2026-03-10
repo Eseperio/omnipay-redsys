@@ -37,14 +37,18 @@ class CallbackResponse
      */
     public function isSuccessful()
     {
-        $rawParameters = $this->request->get('Ds_MerchantParameters');
+        $rawParameters = $this->request->request->get('Ds_MerchantParameters') ?? $this->request->query->get('Ds_MerchantParameters');
+
+        if ($rawParameters === null) {
+            throw new BadSignatureException();
+        }
 
         $decodedParameters = json_decode(base64_decode(strtr($rawParameters, '-_', '+/')), true);
 
         if (!$this->checkSignature(
             $rawParameters,
             $decodedParameters['Ds_Order'],
-            $this->request->get('Ds_Signature')
+            $this->request->request->get('Ds_Signature') ?? $this->request->query->get('Ds_Signature')
         )
         ) {
             throw new BadSignatureException();
