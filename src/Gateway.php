@@ -200,6 +200,15 @@ class Gateway extends AbstractGateway
     }
 
     /**
+     * @param array $parameters
+     * @return \Omnipay\Common\Message\AbstractRequest|\Omnipay\Common\Message\RequestInterface
+     */
+    public function refund(array $parameters = array())
+    {
+        return $this->createRequest('\Omnipay\Redsys\Message\RefundRequest', $parameters);
+    }
+
+    /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @param bool $returnObject
      * @return bool|CallbackResponse
