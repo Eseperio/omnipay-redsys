@@ -3,8 +3,8 @@
 namespace Omnipay\Redsys\Message;
 
 use Symfony\Component\HttpFoundation\Request;
-use Omnipay\Redsys\Encryptor\Encryptor;
 use Omnipay\Redsys\Exception\BadSignatureException;
+use Omnipay\Redsys\Traits\SignatureCheckerTrait;
 
 /**
  * Redsys Complete Purchase Request
@@ -12,6 +12,8 @@ use Omnipay\Redsys\Exception\BadSignatureException;
  */
 class CompletePurchaseRequest extends PurchaseRequest
 {
+    use SignatureCheckerTrait;
+
     /**
      * @return array
      * @throws BadSignatureException
@@ -31,6 +33,7 @@ class CompletePurchaseRequest extends PurchaseRequest
         if (!$this->checkSignature(
             $rawParameters,
             $decodedParameters['Ds_Order'],
+            $this->getParameter('merchantKey'),
             $request->request->get('Ds_Signature') ?? $request->query->get('Ds_Signature')
         )
         ) {
@@ -57,18 +60,5 @@ class CompletePurchaseRequest extends PurchaseRequest
     public function sendData($data)
     {
         return $this->response = new CompletePurchaseResponse($this, $data);
-    }
-
-    /**
-     * @param $data
-     * @param $orderId
-     * @param $expectedSignature
-     * @return bool
-     */
-    private function checkSignature($data, $orderId, $expectedSignature)
-    {
-        $key = Encryptor::encrypt_3DES($orderId, base64_decode($this->getParameter('merchantKey')));
-
-        return strtr(base64_encode(hash_hmac('sha256', $data, $key, true)), '+/', '-_') == $expectedSignature;
     }
 }

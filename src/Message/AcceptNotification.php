@@ -3,7 +3,7 @@
 namespace Omnipay\Redsys\Message;
 
 use Omnipay\Common\Message\NotificationInterface;
-use Omnipay\Redsys\Encryptor\Encryptor;
+use Omnipay\Redsys\Traits\SignatureCheckerTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,6 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AcceptNotification implements NotificationInterface
 {
+    use SignatureCheckerTrait;
+
     /**
      * @var
      */
@@ -52,20 +54,6 @@ class AcceptNotification implements NotificationInterface
     }
 
     /**
-     * @param $data
-     * @param $orderId
-     * @param $expectedSignature
-     * @return bool
-     * @throws \Omnipay\Redsys\Exception\BadSignatureException
-     */
-    private function checkSignature($data, $orderId, $expectedSignature)
-    {
-        $key = Encryptor::encrypt_3DES($orderId, base64_decode($this->getData('merchantKey')));
-
-        return strtr(base64_encode(hash_hmac('sha256', $data, $key, true)), '+/', '-_') == $expectedSignature;
-    }
-
-    /**
      * @return mixed|string
      * @throws \Omnipay\Redsys\Exception\BadSignatureException
      */
@@ -84,7 +72,12 @@ class AcceptNotification implements NotificationInterface
         $rawParameters = $data['Ds_MerchantParameters'] ?? [];
         $decodedParameters = json_decode(base64_decode(strtr($rawParameters, '-_', '+/')), true);
 
-        if (!$this->checkSignature($rawParameters, $decodedParameters['Ds_Order'], $data['Ds_Signature'])) {
+        if (!$this->checkSignature(
+            $rawParameters,
+            $decodedParameters['Ds_Order'],
+            $this->getData('merchantKey'),
+            $data['Ds_Signature']
+        )) {
             $this->errorMsg = 'Bad signature';
             return NotificationInterface::STATUS_FAILED;
         } else {
