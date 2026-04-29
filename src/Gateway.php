@@ -223,7 +223,7 @@ class Gateway extends AbstractGateway
      */
     public function acceptNotification(array $options = array()): \Omnipay\Common\Message\NotificationInterface
     {
-        return new \Omnipay\Redsys\Message\AcceptNotification();
+        return new \Omnipay\Redsys\Message\AcceptNotification($this->getParameter('merchantKey') ?? '');
     }
 
     /**

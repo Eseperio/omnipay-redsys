@@ -30,13 +30,29 @@ use Symfony\Component\HttpFoundation\Request;
 class AcceptNotification implements NotificationInterface
 {
     /**
-     * @var
+     * @var string|null
      */
     private $errorMsg;
     /**
-     * @var null | Request
+     * @var Request|null
+     */
+    private $request = null;
+    /**
+     * @var array|null
      */
     private $requestData = null;
+    /**
+     * @var string
+     */
+    private $merchantKey;
+
+    /**
+     * @param string $merchantKey Base64-encoded merchant key used to verify the callback signature.
+     */
+    public function __construct(string $merchantKey = '')
+    {
+        $this->merchantKey = $merchantKey;
+    }
 
     /**
      * @return array
@@ -56,11 +72,10 @@ class AcceptNotification implements NotificationInterface
      * @param $orderId
      * @param $expectedSignature
      * @return bool
-     * @throws \Omnipay\Redsys\Exception\BadSignatureException
      */
     private function checkSignature($data, $orderId, $expectedSignature)
     {
-        $key = Encryptor::encrypt_3DES($orderId, base64_decode($this->getData('merchantKey')));
+        $key = Encryptor::encrypt_3DES($orderId, base64_decode($this->merchantKey));
 
         return strtr(base64_encode(hash_hmac('sha256', $data, $key, true)), '+/', '-_') == $expectedSignature;
     }

@@ -31,7 +31,14 @@
       "Omnipay\\Redsys\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Omnipay\\Redsys\\Tests\\": "tests/"
+    }
+  },
   "require-dev": {
-    "phpunit/phpunit": "^9.0|^10.0"
+    "phpunit/phpunit": "^9.0|^10.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "php-http/guzzle7-adapter": "^1.1"
   }
 }
